@@ -1,10 +1,11 @@
-import "./Button.module.css";
+import styles from  "./Button.module.css";
 
-const Button = ({ className, value, onClick }) => {
-    return
-    <button className={className} onClick={onClick}>
-        {value}
-    </button>;
+const Button = ({value, onClick }) => {
+    return (
+        <button className={value === "=" ? styles.equals : styles.button} onClick={onClick}>
+            {value}
+        </button>
+    );
 };
 
 export default Button;

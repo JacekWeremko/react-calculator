@@ -1,11 +1,9 @@
-import "./Calculator.module.css";
+import styles from "./Calculator.module.css";
 
 const Calculator = ({ children }) => {
-    return <div className="calculator">{children}</div>;
+    return (
+        <div className={styles.calculator}>{children}</div>
+    )
 };
 
 export default Calculator;
-
-// export default function Calculator ({ children }) {
-//     return <div className="calculator">{children}</div>;
-// };
