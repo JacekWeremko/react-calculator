@@ -1,13 +1,14 @@
-import React, {useState} from "react"
+import React, {useReducer, useState} from "react"
 
 import Calculator from '../components/Calculator/Calculator'
 import Screen from '../components/Screen/Screen'
 import ButtonBox from '../components/ButtonBox/ButtonBox'
 import Button from '../components/Button/Button'
+import Mexp from "math-expression-evaluator";
 
 
 const buttonsDesc = [
-    ["AC", "+/-", "%", "/"],
+    ["AC", "+/-", "Mod", "/"],
     ["7", "8", "9", "*"],
     ["4", "5", "6", "-"],
     ["1", "2", "3", "+"],
@@ -15,62 +16,53 @@ const buttonsDesc = [
 ]
 
 export default function Calc () {
-    let [calc, setCalc] = useState({
-        sign: "",
-        num: 0,
-        res: 0
-    })
+    const initialState = {
+        number: "0",
+        result: "0"
+    }
 
-    function buttonEventHandler(btn) {
-        function numClickHandler(btn) {
-            setCalc({
-                ...calc,
-                num: btn,
-            })
-        }
-
-        function resetClickHandler(btn) {
-            setCalc({
-                sign: "",
-                num: 0,
-                res: 0
-            })
-        }
-
-        function invertClickHandler(btn) {
-            setCalc({
-                ...calc,
-                sign: "",
-                num: calc.num ? -calc.num : 0,
-                res: calc.res ? -calc.res : 0
-            })
-        }
-
-        switch (btn) {
+    function reducer(state, action) {
+        console.log(state)
+        switch(action.type) {
             case "AC":
-                resetClickHandler(btn)
-                break
+                return initialState
             case "+/-":
-                invertClickHandler(btn)
-                break
-            // case "%":
-            //     moduloClickHandler
-            //     break
+                return {...state,
+                    result: state.result.startsWith("-") ? state.result.substring(1) : "-" + state.result}
+            case ".":
+                return {...state,
+                    number: state.number.includes(".") ? state.number :  state.number + ".",
+                    result: state.number.includes(".") ? state.result :  state.result + "."}
+            case "=":
+                return {...state,
+                    number: "0",
+                    result: Mexp.eval(state.result).toString()}
+            case "Mod":
+            case "/":
+            case "*":
+            case "-":
+            case "+":
+                return{...state,
+                    number: "0",
+                    result: state.result ? state.result + " " + action.type + " " : action.type }
             default:
-                numClickHandler(btn)
+                return {...state,
+                    number: state.number !== "0" ? state.number + action.type : action.type,
+                    result: state.result !== "0" ? state.result + action.type : action.type }
         }
     }
 
+    const [state, dispatch] = useReducer(reducer, initialState)
     return (
     <Calculator>
-      <Screen value={calc.num ? calc.num : calc.res} />
+      <Screen value={state.result ? state.result : state.number} />
       <ButtonBox>
           {
-              buttonsDesc.flat().map((desc, key) => (
+              buttonsDesc.flat().map((btn, key) => (
                       <Button
                           key={Math.random()}
-                          value={desc}
-                          onClick={e => buttonEventHandler(desc) }
+                          value={btn}
+                          onClick={() => dispatch({type: btn}) }
                       />
                   )
               )
